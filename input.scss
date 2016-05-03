@@ -15,7 +15,8 @@ $accent_color: #00796B;
 
     1. Basic Document Styles
     2. Modal
-    3. Media Types
+    3. Button
+    4. Media Types
     
 */
 /* 1. Basic Document Styles
@@ -103,8 +104,11 @@ p { margin-bottom: 1rem; }
 /* 2. Modal
 -------------------------------------------------*/
 
+/* 3. Button
+-------------------------------------------------*/
 
-/* 3. Media Types
+
+/* 4. Media Types
 -------------------------------------------------*/
 @media (max-width: 600px) {
   .title {

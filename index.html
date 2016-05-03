@@ -23,7 +23,34 @@
     <div id="contentText"></div>
     <script type="text/babel">
       var Modal = React.createClass({
-        
+          render: function() {
+              return (
+                  <div></div>
+              )
+          }
+      });
+      
+      var List = React.createClass({
+             render: function() {
+                 return (
+                     <div>
+                         <div className="list-group">
+                             <button type="button" className="list-group-item">Apple Pie</button>
+                             <button type="button" className="list-group-item">Roast Pork</button>
+                            <button type="button" className="list-group-item">Chicken Panni</button>
+                        </div>
+                     </div>
+                 )
+             }
+      });
+      
+      var Button = React.createClass({
+          render: function(){
+              return (
+                  <button className="btn btn-default" type="button">Add Recipe</button>
+              )
+              
+          }
       });
       
       var App = React.createClass({
@@ -34,17 +61,22 @@
         },
         componentDidMount: function() {
           
-          this.serverRequest = 
+          
         }, 
         componentWillUnmount: function() {
-            this.serverRequest.abort();
+            
         },
         render: function() {
          
 
           return (
-            <List  />
-            <Modal />
+            <div>
+              <div className="list-container">
+                  <List  />
+                  <Modal />
+              </div>            
+              <Button />
+            </div>           
           )
         }
       });
