@@ -1,8 +1,11 @@
 /* TABLE OF CONTENTS
 
     1. Basic Document Styles
-    2. Modal
-    3. Media Types
+    2. App Container
+    3. List
+    4. Modal
+    5. Button
+    6. Media Types
     
 */
 /* 1. Basic Document Styles
@@ -25,7 +28,8 @@ body {
   font-size: 14px;
   font-size: 0.875rem;
   line-height: 20px;
-  line-height: 1.25rem; }
+  line-height: 1.25rem;
+  background-color: #FAFAFA; }
 
 h1 {
   font-size: 112px;
@@ -79,15 +83,42 @@ caption {
   color: rgba(0, 0, 0, 0.54); }
 
 a {
-  color: #00796B;
+  color: #68EFAD;
   cursor: pointer; }
 
 p {
   margin-bottom: 1rem; }
 
-/* 2. Modal
+/* 2. App Container
 -------------------------------------------------*/
-/* 3. Media Types
+.container {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  background-color: #FFFFFF; }
+
+/* 3. List
+-------------------------------------------------*/
+.list-group-item {
+  background-color: #9B26AF; }
+
+button.list-group-item {
+  color: #FFFFFF; }
+
+button.list-group-item:hover {
+  background-color: #691A99;
+  color: #FFFFFF; }
+
+.glyphicon {
+  padding-right: 10px; }
+
+/* 4. Modal
+-------------------------------------------------*/
+/* 5. Button
+-------------------------------------------------*/
+.btn {
+  background-color: #68EFAD; }
+
+/* 6. Media Types
 -------------------------------------------------*/
 @media (max-width: 600px) {
   .title {
