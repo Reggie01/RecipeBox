@@ -20,12 +20,57 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
   </head>
   <body>
-    <div id="contentText"></div>
+    <div id="contentText" ></div>
     <script type="text/babel">
       var Modal = React.createClass({
+          getInitialState: function(){
+            return {
+              modalButtonClose: true,
+              modalForm: {
+                  recipeName: "",
+                  Ingredients: ""
+              }
+            }
+          },
+          closeModal: function( e ) {     
+              this.props.displayModal();                                 
+          },
           render: function() {
+              var classes;
+              if ( this.props.willDisplayModal ){
+                  classes = "modal_container";
+              } else {
+                  classes = "modal_container showModal";
+              }
+
+              console.log( "Show modal : " + this.props.willDisplayModal );
+              
               return (
-                  <div></div>
+                  <div id="myModal" className={classes} >
+                    <div className="modal_content">
+                      <div className="modal_header">
+                        <span onClick={this.closeModal} className="modal_close">x</span> 
+                        <h4>Add Recipe</h4>
+                      </div>
+                      <div className="modal_body">
+                        <form>
+                          <div className="form-group">
+                            <label for="recipeName">Recipe Name</label>
+                            <input type="text" className="form-control" id="recipeName" placeholder="Enter your recipe name" />
+                          </div>
+                          <div className="form-group">
+                            <label for="ingredients">Ingredients</label>
+                            <textarea type="text" className="form-control" id="ingredients" placeholder="Enter ingredients separated by commas ex. coffee, sugar, cream"></textarea>
+                          </div>
+                        </form>
+                      </div>
+                      <div className="modal_footer">
+                          <ModalButton buttonName="Close" modelClose={this.closeModal} />                       
+                          <Button buttonName="Add Recipe" />                     
+                      </div>
+                      
+                    </div>                                 
+                  </div>
               )
           }
       });
@@ -45,18 +90,33 @@
       });
       
       var Button = React.createClass({
+          getModal: function(e) {
+              this.props.setModal();
+          },
           render: function(){
-              return (
-                  <button className="btn btn-default" type="button">Add Recipe</button>
-              )
               
+              return (
+                  <button id="myBtn" className="btn" type="button" onClick={this.getModal}>{this.props.buttonName}</button>
+              )            
+          }
+      });
+      
+      var ModalButton = React.createClass({
+          closeModal: function(e) {
+              this.props.modelClose();
+          },
+          render: function(){
+              
+              return (
+                  <button id="myBtn" className="btn" type="button" onClick={this.closeModal}>{this.props.buttonName}</button>
+              )            
           }
       });
       
       var App = React.createClass({
         getInitialState: function() {
           return {
-           
+              showModal: false
           };
         },
         componentDidMount: function() {
@@ -66,25 +126,36 @@
         componentWillUnmount: function() {
             
         },
+        displayModal: function() {
+           
+           this.setState({
+               showModal: !this.state.showModal
+           });
+
+            console.log( this.state );
+            
+        },
         render: function() {
          
 
           return (
-            <div>
-              <header className="text-center">
-                <h1>Recipe Box</h1>
-              </header>
-              <div className="container">
+           <div>
+               <Modal displayModal={this.displayModal}  willDisplayModal={this.state.showModal} />   
+              <div className="col-md-12">
+                <header className="text-center">
+                  <h1>Recipe Box</h1>
+                </header>
+                <div className="container col-md-12">
                   <List  />
-                  <Modal />
-                  <Button />
-              </div>                         
-            </div>           
+                  <Button setModal={this.displayModal} buttonName="Add Recipe" />
+                </div>     
+              </div> 
+           </div>            
           )
         }
       });
       
-      ReactDOM.render( <App source="" />, document.getElementById("contentText") );
+      ReactDOM.render( <App  />, document.getElementById("contentText") );
       
     </script>
   </body>

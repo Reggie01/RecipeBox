@@ -17,6 +17,7 @@ My codepen version of the Markdown Previewer is at [codepen](https://codepen.io/
   
 ### APIs / Libraries / Articles
 * http://facebook.github.io/react/docs/getting-started.html
+* http://www.w3schools.com/howto/howto_css_modals.asp
 
 ### Technologies Used
 * javascript
