@@ -157,6 +157,7 @@ button.list-group-item:hover {
   padding: 20px;
   border: 1px solid #888;
   width: 80%;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
 }
 
 .modal_close {
@@ -164,6 +165,14 @@ button.list-group-item:hover {
   float: right;
   font-size: 28px;
   font-weight: 700;
+}
+
+.modal_close:hover,
+.modal_close:focus
+{
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .showModal {

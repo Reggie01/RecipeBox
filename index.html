@@ -23,18 +23,28 @@
     <div id="contentText" ></div>
     <script type="text/babel">
       var Modal = React.createClass({
-          getInitialState: function(){
-            return {
-              modalButtonClose: true,
-              modalForm: {
-                  recipeName: "",
-                  Ingredients: ""
-              }
-            }
-          },
+          
           closeModal: function( e ) {     
               this.props.displayModal();                                 
           },
+          
+          createRecipe: function( event ) {
+              event.preventDefault( event );
+              
+              // 1. Collect data from form
+              var recipeData = {
+                recipeName: this.refs.recipeName.value,
+                recipeDescription: this.refs.recipeDesc.value.split(",")                                            
+              };
+              
+              // 2. Pass data to App
+              this.props.addRecipe( recipeData );
+              
+              // 3. Reset Form
+              this.refs.recipeForm.reset();
+              
+          },
+          
           render: function() {
               var classes;
               if ( this.props.willDisplayModal ){
@@ -53,22 +63,23 @@
                         <h4>Add Recipe</h4>
                       </div>
                       <div className="modal_body">
-                        <form>
+                        <form onSubmit={this.createRecipe} ref="recipeForm">
                           <div className="form-group">
                             <label for="recipeName">Recipe Name</label>
-                            <input type="text" className="form-control" id="recipeName" placeholder="Enter your recipe name" />
+                            <input type="text" className="form-control" id="recipeName"  placeholder="Enter your recipe name" ref="recipeName" />
                           </div>
                           <div className="form-group">
                             <label for="ingredients">Ingredients</label>
-                            <textarea type="text" className="form-control" id="ingredients" placeholder="Enter ingredients separated by commas ex. coffee, sugar, cream"></textarea>
+                            <textarea type="text" className="form-control" id="ingredients" placeholder="Enter ingredients separated by commas ex. coffee, sugar, cream" ref="recipeDesc"></textarea>
                           </div>
+                          <button id="submit" className="btn pull-right" type="submit">Create Recipe</button>
+                          <button id="myBtn" className="btn pull-right" type="button" onClick={this.closeModal}>Close</button>                         
+                          <div className="clearfix"></div>
                         </form>
                       </div>
-                      <div className="modal_footer">
-                          <ModalButton buttonName="Close" modelClose={this.closeModal} />                       
-                          <Button buttonName="Add Recipe" />                     
-                      </div>
-                      
+                      <div className="modal_footer">                                
+                                                              
+                      </div>                     
                     </div>                                 
                   </div>
               )
@@ -79,8 +90,7 @@
              render: function() {
                  return (
                      <div>
-                         <div className="list-group">
-                             <button type="button" className="list-group-item"><span className="glyphicon glyphicon-list-alt" aria-hidden="true"></span>Apple Pie</button>
+                         <div className="list-group">                            
                              <button type="button" className="list-group-item"><span className="glyphicon glyphicon-list-alt" aria-hidden="true"></span>Roast Pork</button>
                              <button type="button" className="list-group-item"><span className="glyphicon glyphicon-list-alt" aria-hidden="true"></span>Chicken Panni</button>
                         </div>
@@ -96,19 +106,7 @@
           render: function(){
               
               return (
-                  <button id="myBtn" className="btn" type="button" onClick={this.getModal}>{this.props.buttonName}</button>
-              )            
-          }
-      });
-      
-      var ModalButton = React.createClass({
-          closeModal: function(e) {
-              this.props.modelClose();
-          },
-          render: function(){
-              
-              return (
-                  <button id="myBtn" className="btn" type="button" onClick={this.closeModal}>{this.props.buttonName}</button>
+                  <button id="myBtn" className="btn" type="button" onClick={this.idp}>{this.props.buttonName}</button>
               )            
           }
       });
@@ -116,8 +114,19 @@
       var App = React.createClass({
         getInitialState: function() {
           return {
-              showModal: false
+              showModal: false,
+              recipes: [
+                  {recipeName: "garlic chicken", ingredients: ["chicken", "garlic", "onion", "black pepper"]}, 
+                  {recipeName: "Spaghetti", ingredients: ["Noodles", "Tomato sauce", "Meatballs"]}
+              ]
           };
+        },
+        _addRecipe: function( recipe ) {
+            var recipes;
+            this.state.recipes.push( recipe );
+            this.setState({
+                recipes: this.state.recipes
+            });
         },
         componentDidMount: function() {
           
@@ -135,21 +144,41 @@
             console.log( this.state );
             
         },
+        _renderRecipeList: function(recipe, idx) {
+            return (
+                <button type="button" className="list-group-item" key={idx} index={idx}><span className="glyphicon glyphicon-list-alt" aria-hidden="true"></span>{recipe.recipeName}</button>
+                <div className="panel">
+                    <h4>{recipe.recipeName}</h4>
+                    <ul>
+                        
+                    </ul>
+                    <button type="button">Delete</button>
+                    <button type="edit"></button>
+                </div>
+            )
+        },
         render: function() {
-         
-
+          
           return (
            <div>
-               <Modal displayModal={this.displayModal}  willDisplayModal={this.state.showModal} />   
+               <Modal displayModal={this.displayModal} addRecipe={this._addRecipe}  willDisplayModal={this.state.showModal} />   
               <div className="col-md-12">
                 <header className="text-center">
                   <h1>Recipe Box</h1>
                 </header>
                 <div className="container col-md-12">
-                  <List  />
-                  <Button setModal={this.displayModal} buttonName="Add Recipe" />
+                  <div className="list-group">
+                    {
+                        this.state.recipes.map(this._renderRecipeList)
+                    }
+                  </div>
+                  
+                  <button id="myBtn" className="btn" type="button" onClick={this.displayModal}>Add Recipe</button>
                 </div>     
               </div> 
+              <pre>
+                  {JSON.stringify(this.state, null, 2)}
+              </pre>
            </div>            
           )
         }
