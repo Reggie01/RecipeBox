@@ -34,7 +34,11 @@
               // 1. Collect data from form
               var recipeData = {
                 recipeName: this.refs.recipeName.value,
-                recipeDescription: this.refs.recipeDesc.value.split(",")                                            
+                ingredients: this.refs.recipeDesc.value
+                                               .split(",")  
+                                               .map(function( ingredient ){
+                                                   return ingredient.trim();
+                                               })                                               
               };
               
               // 2. Pass data to App
@@ -86,17 +90,110 @@
           }
       });
       
+      var EditModal = React.createClass({
+          getInitialState: function() {
+              return {
+                  isEditModalOpen: false
+              }
+          },
+          
+          render: function() {
+              
+              var classes;
+              if ( this.props.willDisplayModal ){
+                  classes = "modal_container";
+              } else {
+                  classes = "modal_container showModal";
+              }
+              
+              return (
+                  <div id="myModal" className={classes} >
+                    <div className="modal_content">
+                      <div className="modal_header">
+                        <span onClick={this.closeModal} className="modal_close">x</span> 
+                        <h4>Add Recipe</h4>
+                      </div>
+                      <div className="modal_body">
+                        <form onSubmit={this.createRecipe} ref="recipeForm">
+                          <div className="form-group">
+                            <label for="recipeName">Recipe Name</label>
+                            <input type="text" className="form-control" id="recipeName"  placeholder="Enter your recipe name" ref="recipeName" />
+                          </div>
+                          <div className="form-group">
+                            <label for="ingredients">Ingredients</label>
+                            <textarea type="text" className="form-control" id="ingredients" placeholder="Enter ingredients separated by commas ex. coffee, sugar, cream" ref="recipeDesc"></textarea>
+                          </div>
+                          <button id="submit" className="btn pull-right" type="submit">Create Recipe</button>
+                          <button id="myBtn" className="btn pull-right" type="button" onClick={this.closeModal}>Close</button>                         
+                          <div className="clearfix"></div>
+                        </form>
+                      </div>
+                      <div className="modal_footer">                                
+                                                              
+                      </div>                     
+                    </div>                                 
+                  </div>
+              )
+          }
+      });
+      
       var List = React.createClass({
-             render: function() {
-                 return (
-                     <div>
-                         <div className="list-group">                            
-                             <button type="button" className="list-group-item"><span className="glyphicon glyphicon-list-alt" aria-hidden="true"></span>Roast Pork</button>
-                             <button type="button" className="list-group-item"><span className="glyphicon glyphicon-list-alt" aria-hidden="true"></span>Chicken Panni</button>
-                        </div>
-                     </div>
-                 )
-             }
+          getInitialState: function() {
+              return {
+                  isPanelOpen: false,
+                  class: "panel closed"
+              }
+          },
+          _togglePanel: function(e) {
+              if( !this.state.isPanelOpen) {
+                  this.setState({
+                      isPanelOpen: true,
+                      class: "panel open"
+                  });
+              } else {
+                  this.setState({
+                      isPanelOpen: false,
+                      class: "panel closed"
+                  });
+              }
+              
+          },
+          _removeRecipe: function( i, e ){
+              console.log( "remove element" );
+              console.log(i);
+              
+              this.props.removeRecipe(i);
+          },
+          _renderIngredients: function( ingredient, idx ){
+            return (
+                <li key={idx}>{ingredient}</li>
+            )
+          },
+          render: function() {
+              
+              return (
+                  <div>
+                      
+                      <button type="button" className="list-group-item accordion" onClick={this._togglePanel}>
+                          <span className="glyphicon glyphicon-list-alt" aria-hidden="true"></span>{this.props.recipe.recipeName}
+                      </button>
+                      <div className={this.state.class}>
+                          <h4>{this.props.recipe.recipeName}</h4>
+                          <ul>
+                              {this.props.recipe.ingredients.map(this._renderIngredients)}
+                          </ul>
+                          <button className="btn" onClick={this._removeRecipe.bind(this, this.props.idx)} type="button">Delete</button>
+                          <button className="btn" type="edit">Edit</button>
+                      </div>
+                      
+                      <pre>
+                          {JSON.stringify(this.state, null, 2)}
+                      </pre>
+                      
+                  </div>
+                 
+              )
+          }
       });
       
       var Button = React.createClass({
@@ -118,7 +215,8 @@
               recipes: [
                   {recipeName: "garlic chicken", ingredients: ["chicken", "garlic", "onion", "black pepper"]}, 
                   {recipeName: "Spaghetti", ingredients: ["Noodles", "Tomato sauce", "Meatballs"]}
-              ]
+              ],
+             
           };
         },
         _addRecipe: function( recipe ) {
@@ -128,9 +226,15 @@
                 recipes: this.state.recipes
             });
         },
+        removeRecipe: function( idx ){
+            var recipesData = this.state.recipes.slice();
+            recipesData.splice( idx, 1);
+            this.setState({
+                recipes: recipesData
+            });
+        },
         componentDidMount: function() {
-          
-          
+                   
         }, 
         componentWillUnmount: function() {
             
@@ -144,21 +248,12 @@
             console.log( this.state );
             
         },
-        _renderRecipeList: function(recipe, idx) {
-            return (
-                <button type="button" className="list-group-item" key={idx} index={idx}><span className="glyphicon glyphicon-list-alt" aria-hidden="true"></span>{recipe.recipeName}</button>
-                <div className="panel">
-                    <h4>{recipe.recipeName}</h4>
-                    <ul>
-                        
-                    </ul>
-                    <button type="button">Delete</button>
-                    <button type="edit"></button>
-                </div>
-            )
+        _togglePanel: function(e) {
+            console.log(this);
         },
         render: function() {
-          
+          var removeRecipe = this.removeRecipe;
+          console.log( removeRecipe );
           return (
            <div>
                <Modal displayModal={this.displayModal} addRecipe={this._addRecipe}  willDisplayModal={this.state.showModal} />   
@@ -169,8 +264,10 @@
                 <div className="container col-md-12">
                   <div className="list-group">
                     {
-                        this.state.recipes.map(this._renderRecipeList)
-                    }
+                        this.state.recipes.map(function( recipe, idx ){
+                            return <List recipe={recipe} removeRecipe={removeRecipe} key={idx} idx={idx} />
+                        })
+                    }                  
                   </div>
                   
                   <button id="myBtn" className="btn" type="button" onClick={this.displayModal}>Add Recipe</button>

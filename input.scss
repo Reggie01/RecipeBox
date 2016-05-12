@@ -19,10 +19,11 @@ $background_color: #FAFAFA;
 
     1. Basic Document Styles
     2. App Container
-    3. List
-    4. Modal
-    5. Button
-    6. Media Types
+    3. Accordian
+    4. List
+    5. Modal
+    6. Button
+    7. Media Types
     
 */
 /* 1. Basic Document Styles
@@ -117,7 +118,22 @@ p { margin-bottom: 1rem; }
   box-shadow: 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12), 0 2px 4px -1px rgba(0,0,0,.2);
 }
 
-/* 3. List
+/* 3. Accordian
+-------------------------------------------------*/
+.accordion:after {
+  content: '\02795';
+  font-size: 13px;
+  color: #777;
+  float: right;
+  margin-left: 5px;
+}
+
+button.accordion.active:after {
+  content: "\2796";
+}
+
+
+/* 4. List
 -------------------------------------------------*/
 .list-group-item {
   background-color: $primary_color;
@@ -136,7 +152,25 @@ button.list-group-item:hover {
   padding-right: 10px;
 }
 
-/* 4. Modal
+div.panel {
+    padding: 0 18px;
+
+    background-color: white;
+}
+
+div.panel.show {
+    display: block !important;
+}
+
+.closed {
+  display: none;
+}
+
+.open {
+  display: block;
+}
+
+/* 5. Modal
 -------------------------------------------------*/
 .modal_container {
   
@@ -193,7 +227,7 @@ button.list-group-item:hover {
   padding: 2px 16px;
 }
 
-/* 5. Button
+/* 6. Button
 -------------------------------------------------*/
 .btn {
   color: $accent_color;
@@ -229,7 +263,7 @@ button.list-group-item:hover {
   box-shadow: 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12), 0 2px 4px -1px rgba(0,0,0,.2);
 }
 
-/* 6. Media Types
+/* 7. Media Types
 -------------------------------------------------*/
 @media (max-width: 600px) {
   .title {
