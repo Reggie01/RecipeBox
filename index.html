@@ -97,13 +97,34 @@
               }
           },
           
+          editRecipe: function( event ) {
+              event.preventDefault( event );
+              
+              // 1. Collect data from form
+              var recipeData = {
+                recipeName: this.refs.recipeName.value,
+                ingredients: this.refs.recipeDesc.value
+                                               .split(",")  
+                                               .map(function( ingredient ){
+                                                   return ingredient.trim();
+                                               })                                               
+              };
+              
+              // 2. Pass data to App
+              this.props.addRecipe( recipeData );
+              
+              // 3. Reset Form
+              this.refs.recipeForm.reset();
+              
+          },
+          
           render: function() {
               
               var classes;
-              if ( this.props.willDisplayModal ){
+              if ( this.props.isEditModalOpen ){
                   classes = "modal_container";
               } else {
-                  classes = "modal_container showModal";
+                  classes = "modal_container edit_modal";
               }
               
               return (
@@ -111,7 +132,7 @@
                     <div className="modal_content">
                       <div className="modal_header">
                         <span onClick={this.closeModal} className="modal_close">x</span> 
-                        <h4>Add Recipe</h4>
+                        <h4>Edit Recipe</h4>
                       </div>
                       <div className="modal_body">
                         <form onSubmit={this.createRecipe} ref="recipeForm">
@@ -123,7 +144,7 @@
                             <label for="ingredients">Ingredients</label>
                             <textarea type="text" className="form-control" id="ingredients" placeholder="Enter ingredients separated by commas ex. coffee, sugar, cream" ref="recipeDesc"></textarea>
                           </div>
-                          <button id="submit" className="btn pull-right" type="submit">Create Recipe</button>
+                          <button id="submit" className="btn pull-right" type="submit" onclick={this.displayModal}>Edit Recipe</button>
                           <button id="myBtn" className="btn pull-right" type="button" onClick={this.closeModal}>Close</button>                         
                           <div className="clearfix"></div>
                         </form>
@@ -141,40 +162,50 @@
           getInitialState: function() {
               return {
                   isPanelOpen: false,
-                  class: "panel closed"
+                  class: "panel closed",
+                  listGroup: "list-group-item accordion",
+                  isEditModalOpen: false
               }
           },
           _togglePanel: function(e) {
               if( !this.state.isPanelOpen) {
                   this.setState({
                       isPanelOpen: true,
-                      class: "panel open"
+                      class: "panel open", 
+                      listGroup: "list-group-item accordion active"
                   });
               } else {
                   this.setState({
                       isPanelOpen: false,
-                      class: "panel closed"
+                      class: "panel closed",
+                      listGroup: "list-group-item accordion"
                   });
               }
               
           },
-          _removeRecipe: function( i, e ){
+          _removeRecipe: function( idx, e ){
               console.log( "remove element" );
-              console.log(i);
               
-              this.props.removeRecipe(i);
+              this.props.removeRecipe(idx);
           },
           _renderIngredients: function( ingredient, idx ){
             return (
                 <li key={idx}>{ingredient}</li>
             )
           },
+          _editRecipe: function(idx, event) {
+              
+              this.setState({
+                  isEditModalOpen: true
+              });
+          },
           render: function() {
+              console.log( this.props.idx );
               
               return (
                   <div>
-                      
-                      <button type="button" className="list-group-item accordion" onClick={this._togglePanel}>
+                      <EditModal isEditModalOpen={this.state.isEditModalOpen} />
+                      <button type="button" className={this.state.listGroup} onClick={this._togglePanel}>
                           <span className="glyphicon glyphicon-list-alt" aria-hidden="true"></span>{this.props.recipe.recipeName}
                       </button>
                       <div className={this.state.class}>
@@ -183,7 +214,7 @@
                               {this.props.recipe.ingredients.map(this._renderIngredients)}
                           </ul>
                           <button className="btn" onClick={this._removeRecipe.bind(this, this.props.idx)} type="button">Delete</button>
-                          <button className="btn" type="edit">Edit</button>
+                          <button className="btn" onClick={this._editRecipe.bind(this, this.props.idx)} type="button">Edit</button>
                       </div>
                       
                       <pre>
@@ -252,11 +283,11 @@
             console.log(this);
         },
         render: function() {
-          var removeRecipe = this.removeRecipe;
-          console.log( removeRecipe );
+          var removeRecipe = this.removeRecipe
+          
           return (
            <div>
-               <Modal displayModal={this.displayModal} addRecipe={this._addRecipe}  willDisplayModal={this.state.showModal} />   
+               <Modal displayModal={this.displayModal} addRecipe={this._addRecipe}  willDisplayModal={this.state.showModal} />
               <div className="col-md-12">
                 <header className="text-center">
                   <h1>Recipe Box</h1>
