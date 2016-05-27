@@ -21,6 +21,19 @@
   </head>
   <body>
     <div id="contentText" ></div>
+    <script>
+        
+        if( typeof(Storage) !== "undefined" ){
+            var obj = { name: "Foo" };
+            
+            localStorage.setItem("lastname", "Smith");
+            console.log( localStorage.getItem( "lastname" ) );
+
+        } else {
+            console.log( "Sorry! No Web Storage support.." );
+        }        
+               
+    </script>
     <script type="text/babel">
       var Modal = React.createClass({
           
@@ -56,8 +69,6 @@
               } else {
                   classes = "modal_container showModal";
               }
-
-              console.log( "Show modal : " + this.props.willDisplayModal );
               
               return (
                   <div id="myModal" className={classes} >
@@ -93,12 +104,20 @@
       var EditModal = React.createClass({
           getInitialState: function() {
               return {
-                  isEditModalOpen: false
+                  isEditModalOpen: this.props.isEditModalOpen,
+                  recipeName: this.props.recipe.recipeName, 
+                  ingredients: this.props.recipe.ingredients.join(",")
               }
           },
-          
+          ingredientsChange: function(event){
+              this.setState({
+                  ingredients: event.target.value
+              });
+          },
           editRecipe: function( event ) {
-              event.preventDefault( event );
+              event.preventDefault();
+              
+              console.log( "Index: " + this.props.idx );
               
               // 1. Collect data from form
               var recipeData = {
@@ -111,21 +130,46 @@
               };
               
               // 2. Pass data to App
-              this.props.addRecipe( recipeData );
+              this.props.editRecipe( this.props.idx, recipeData );
+              
+              // 3. Set ingredients state to empty string
+              this.setState({
+                  recipeName: "",
+                  ingredients: ""
+              });
               
               // 3. Reset Form
-              this.refs.recipeForm.reset();
+              this.refs.recipeEditForm.reset();
               
+          },
+          closeModal: function() {             
+              this.props.closeModal();
+          },
+          getIngredients: function( ingredients ) {
+               if( Array.isArray( ingredients ) && ingredients.length > 0 ){
+                  return ingredients.split(",");
+              } else {
+                  return ingredients;
+              }
+          },
+          recipeNameChange: function( event ){
+              this.setState({
+                  recipeName: event.target.value
+              });
           },
           
           render: function() {
               
-              var classes;
+              var classes,
+                    ingredients;
+                    
               if ( this.props.isEditModalOpen ){
                   classes = "modal_container";
               } else {
                   classes = "modal_container edit_modal";
               }
+              
+              ingredients = this.getIngredients( this.state.ingredients );
               
               return (
                   <div id="myModal" className={classes} >
@@ -135,16 +179,21 @@
                         <h4>Edit Recipe</h4>
                       </div>
                       <div className="modal_body">
-                        <form onSubmit={this.createRecipe} ref="recipeForm">
+                        <form onSubmit={this.editRecipe} ref="recipeEditForm">
                           <div className="form-group">
                             <label for="recipeName">Recipe Name</label>
-                            <input type="text" className="form-control" id="recipeName"  placeholder="Enter your recipe name" ref="recipeName" />
+                            <input type="text" className="form-control" id="recipeName" onChange={this.recipeNameChange} value={this.state.recipeName }
+                            
+                            placeholder="Enter your recipe name" ref="recipeName" />
+                            <div class="help-block with-errors">Please enter your name.</div>
                           </div>
                           <div className="form-group">
                             <label for="ingredients">Ingredients</label>
-                            <textarea type="text" className="form-control" id="ingredients" placeholder="Enter ingredients separated by commas ex. coffee, sugar, cream" ref="recipeDesc"></textarea>
+                            <textarea type="text" className="form-control" id="ingredients" onChange={this.ingredientsChange} value={ingredients} 
+                            placeholder="Enter ingredients separated by commas ex. coffee, sugar, cream"  ref="recipeDesc"
+                            ></textarea>
                           </div>
-                          <button id="submit" className="btn pull-right" type="submit" onclick={this.displayModal}>Edit Recipe</button>
+                          <button id="submit" className="btn pull-right" type="submit">Edit Recipe</button>
                           <button id="myBtn" className="btn pull-right" type="button" onClick={this.closeModal}>Close</button>                         
                           <div className="clearfix"></div>
                         </form>
@@ -152,7 +201,10 @@
                       <div className="modal_footer">                                
                                                               
                       </div>                     
-                    </div>                                 
+                    </div> 
+                    <pre>
+                        {JSON.stringify(this.state, null, 2)}
+                    </pre>                    
                   </div>
               )
           }
@@ -163,58 +215,62 @@
               return {
                   isPanelOpen: false,
                   class: "panel closed",
-                  listGroup: "list-group-item accordion",
+                  buttonStyle: "list-group-item accordion",
                   isEditModalOpen: false
               }
           },
-          _togglePanel: function(e) {
+          togglePanel: function(e) {
               if( !this.state.isPanelOpen) {
                   this.setState({
                       isPanelOpen: true,
                       class: "panel open", 
-                      listGroup: "list-group-item accordion active"
+                      buttonStyle: "list-group-item accordion active"
                   });
               } else {
                   this.setState({
                       isPanelOpen: false,
                       class: "panel closed",
-                      listGroup: "list-group-item accordion"
+                      buttonStyle: "list-group-item accordion"
                   });
               }
               
           },
-          _removeRecipe: function( idx, e ){
+          removeRecipe: function( idx, e ){
               console.log( "remove element" );
               
               this.props.removeRecipe(idx);
           },
-          _renderIngredients: function( ingredient, idx ){
+          renderIngredients: function( ingredient, idx ){
             return (
                 <li key={idx}>{ingredient}</li>
             )
           },
-          _editRecipe: function(idx, event) {
+          openModal: function(idx, event) {
               
               this.setState({
                   isEditModalOpen: true
               });
           },
+          _closeModal: function() {
+              this.setState({
+                  isEditModalOpen: false
+              });
+          },
           render: function() {
-              console.log( this.props.idx );
               
               return (
                   <div>
-                      <EditModal isEditModalOpen={this.state.isEditModalOpen} />
-                      <button type="button" className={this.state.listGroup} onClick={this._togglePanel}>
+                      <EditModal isEditModalOpen={this.state.isEditModalOpen} recipe={this.props.recipe} editRecipe={this.props.editRecipe} closeModal={this._closeModal} idx={this.props.idx}/>
+                      <button type="button" className={this.state.buttonStyle} onClick={this.togglePanel}>
                           <span className="glyphicon glyphicon-list-alt" aria-hidden="true"></span>{this.props.recipe.recipeName}
                       </button>
                       <div className={this.state.class}>
                           <h4>{this.props.recipe.recipeName}</h4>
                           <ul>
-                              {this.props.recipe.ingredients.map(this._renderIngredients)}
+                              {this.props.recipe.ingredients.map(this.renderIngredients)}
                           </ul>
-                          <button className="btn" onClick={this._removeRecipe.bind(this, this.props.idx)} type="button">Delete</button>
-                          <button className="btn" onClick={this._editRecipe.bind(this, this.props.idx)} type="button">Edit</button>
+                          <button className="btn" onClick={this.removeRecipe.bind(this, this.props.idx)} type="button">Delete</button>
+                          <button className="btn" onClick={this.openModal.bind(this, this.props.idx)} type="button">Edit</button>
                       </div>
                       
                       <pre>
@@ -227,27 +283,15 @@
           }
       });
       
-      var Button = React.createClass({
-          getModal: function(e) {
-              this.props.setModal();
-          },
-          render: function(){
-              
-              return (
-                  <button id="myBtn" className="btn" type="button" onClick={this.idp}>{this.props.buttonName}</button>
-              )            
-          }
-      });
-      
       var App = React.createClass({
+        
         getInitialState: function() {
           return {
               showModal: false,
               recipes: [
                   {recipeName: "garlic chicken", ingredients: ["chicken", "garlic", "onion", "black pepper"]}, 
                   {recipeName: "Spaghetti", ingredients: ["Noodles", "Tomato sauce", "Meatballs"]}
-              ],
-             
+              ]             
           };
         },
         _addRecipe: function( recipe ) {
@@ -257,7 +301,25 @@
                 recipes: this.state.recipes
             });
         },
-        removeRecipe: function( idx ){
+        _editRecipe: function( idx, recipe ){
+            
+            var index = parseInt(idx, 10);
+            var name = recipe.recipeName;
+            var ingredients = recipe.ingredients;
+           
+            var newRecipes = this.state.recipes.slice();
+            
+            
+            newRecipes[idx].recipeName = recipe.recipeName;
+            newRecipes[idx].ingredients = recipe.ingredients;
+           
+            this.setState({
+                 recipes: newRecipes
+            });
+            
+            
+        },
+        _removeRecipe: function( idx ){
             var recipesData = this.state.recipes.slice();
             recipesData.splice( idx, 1);
             this.setState({
@@ -270,24 +332,20 @@
         componentWillUnmount: function() {
             
         },
-        displayModal: function() {
+        _displayModal: function() {
            
            this.setState({
                showModal: !this.state.showModal
            });
-
-            console.log( this.state );
             
         },
-        _togglePanel: function(e) {
-            console.log(this);
-        },
         render: function() {
-          var removeRecipe = this.removeRecipe
+          var removeRecipe = this._removeRecipe,
+                editRecipe = this._editRecipe;
           
           return (
            <div>
-               <Modal displayModal={this.displayModal} addRecipe={this._addRecipe}  willDisplayModal={this.state.showModal} />
+               <Modal displayModal={this._displayModal} addRecipe={this._addRecipe}  willDisplayModal={this.state.showModal} />
               <div className="col-md-12">
                 <header className="text-center">
                   <h1>Recipe Box</h1>
@@ -296,12 +354,12 @@
                   <div className="list-group">
                     {
                         this.state.recipes.map(function( recipe, idx ){
-                            return <List recipe={recipe} removeRecipe={removeRecipe} key={idx} idx={idx} />
+                            return <List recipe={recipe} removeRecipe={removeRecipe} editRecipe={editRecipe} key={idx} idx={idx} />
                         })
                     }                  
                   </div>
                   
-                  <button id="myBtn" className="btn" type="button" onClick={this.displayModal}>Add Recipe</button>
+                  <button id="myBtn" className="btn" type="button" onClick={this._displayModal}>Add Recipe</button>
                 </div>     
               </div> 
               <pre>

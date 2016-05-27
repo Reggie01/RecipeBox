@@ -18,6 +18,7 @@ My codepen version of the Markdown Previewer is at [codepen](https://codepen.io/
 ### APIs / Libraries / Articles
 * http://facebook.github.io/react/docs/getting-started.html
 * http://www.w3schools.com/howto/howto_css_modals.asp
+* https://medium.com/pro-react/a-brief-talk-about-immutability-and-react-s-helpers-70919ab8ae7c#.jpwy9npw6 - small introduction to immutable.js library and why immutability is important to use with react
 
 ### Technologies Used
 * javascript
