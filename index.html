@@ -23,18 +23,27 @@
     <div id="contentText" ></div>
     <script>
         
-        if( typeof(Storage) !== "undefined" ){
-            var obj = { name: "Foo" };
-            
-            localStorage.setItem("lastname", "Smith");
-            console.log( localStorage.getItem( "lastname" ) );
+        function storageAvailable( type ){
+            try {
+                var storage = window[type],
+                                x = "__storage_test__";
+                storage.setItem(x,x);
+                storage.removeItem(x);
+                return true;
+            } catch( e ) {
+                return false;
+            }
+        }
 
+        if( storageAvailable( 'localStorage' )) {
+            console.log( "We can use storage." );
         } else {
-            console.log( "Sorry! No Web Storage support.." );
+            console.log( "We can't use storage" );
         }        
                
     </script>
     <script type="text/babel">
+    
       var Modal = React.createClass({
           
           closeModal: function( e ) {     
@@ -286,19 +295,68 @@
       var App = React.createClass({
         
         getInitialState: function() {
+          var recipeData = this.populateRecipes();
+          this.storeRecipeData( recipeData );
           return {
               showModal: false,
-              recipes: [
-                  {recipeName: "garlic chicken", ingredients: ["chicken", "garlic", "onion", "black pepper"]}, 
-                  {recipeName: "Spaghetti", ingredients: ["Noodles", "Tomato sauce", "Meatballs"]}
-              ]             
+              recipes: this.retreiveRecipeData( "_user_recipes" )    
           };
         },
+        storeRecipeData: function( recipeData ) {
+             if( storageAvailable( 'localStorage' )) {
+                 console.log( "We can use storage." );
+                 localStorage.setItem( "_user_recipes", JSON.stringify( recipeData ) );
+             } else {
+                console.log( "We can't use storage" );
+                this.setState({
+                    recipes: recipeData
+                })
+             }             
+        },
+        retreiveRecipeData: function( data ) {
+            
+            if( storageAvailable( 'localStorage' )) {
+                 console.log( "We can use storage." );
+                 console.log( "Retreive data from local storage." );
+                 console.log( JSON.parse( localStorage.getItem( data ) ) );
+                 return JSON.parse( localStorage.getItem( data ) );
+             } else {
+                return this.state.recipes;
+             } 
+            
+        },
+        populateRecipes: function() {
+            var recipes;
+            if( storageAvailable( 'localStorage' )) {
+                 console.log( "Get initial data from storage." );
+                 
+                 if( JSON.parse( localStorage.getItem( "_user_recipes" ) ).length > 0 ) {
+                     recipes = JSON.parse( localStorage.getItem( "_user_recipes" ) );
+                 } else {
+                     recipes =  [
+                         {recipeName: "garlic chicken", ingredients: ["chicken", "garlic", "onion", "black pepper"]}, 
+                         {recipeName: "Spaghetti", ingredients: ["Noodles", "Tomato sauce", "Meatballs"]}
+                     ];
+                 }
+             } else {
+                
+                recipes =  [
+                  {recipeName: "garlic chicken", ingredients: ["chicken", "garlic", "onion", "black pepper"]}, 
+                  {recipeName: "Spaghetti", ingredients: ["Noodles", "Tomato sauce", "Meatballs"]}
+                ];
+             } 
+             
+             return recipes;
+        },        
         _addRecipe: function( recipe ) {
             var recipes;
-            this.state.recipes.push( recipe );
+            recipes = this.retreiveRecipeData( "_user_recipes" );
+            console.log( recipes );
+            recipes.push( recipe );
+            console.log( recipes );
+            this.storeRecipeData( recipes );
             this.setState({
-                recipes: this.state.recipes
+                recipes: this.retreiveRecipeData( "_user_recipes" )
             });
         },
         _editRecipe: function( idx, recipe ){
@@ -307,23 +365,23 @@
             var name = recipe.recipeName;
             var ingredients = recipe.ingredients;
            
-            var newRecipes = this.state.recipes.slice();
-            
-            
+            var newRecipes = this.state.recipes.slice();           
             newRecipes[idx].recipeName = recipe.recipeName;
             newRecipes[idx].ingredients = recipe.ingredients;
-           
+            
+            this.storeRecipeData( newRecipes );
             this.setState({
-                 recipes: newRecipes
+                 recipes: this.retreiveRecipeData( "_user_recipes" )
             });
-            
-            
+                       
         },
         _removeRecipe: function( idx ){
             var recipesData = this.state.recipes.slice();
             recipesData.splice( idx, 1);
+            
+            this.storeRecipeData( recipesData );
             this.setState({
-                recipes: recipesData
+                recipes: this.retreiveRecipeData( "_user_recipes" )
             });
         },
         componentDidMount: function() {
