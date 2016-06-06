@@ -2,23 +2,33 @@
 
 This is Free Code Camp Data Visualization project "[Build a Recipe Box](https://www.freecodecamp.com/challenges/build-a-camper-leaderboard)". Follow the link
 to see all user stories for the [project](https://www.freecodecamp.com/challenges/build-a-recipe-box).
-My codepen version of the Markdown Previewer is at [codepen](https://codepen.io/Reggie01/pen/RaBXxw) and source code [github](https://github.com/Reggie01/RecipeBox).
+My codepen version of the Markdown Previewer is at [codepen](http://codepen.io/Reggie01/full/ZObWJL/).
 
 ### User Stories
-* I can see a table of the Free Code Camp campers who've earned the most brownie points in the past 30 days.
+* User Story: I can create recipes that have names and ingredients.
 
-* I can see how many brownie points they've earned in the past 30 days, and how many they've earned total.
+* User Story: I can see an index view where the names of all the recipes are visible.
 
-* I can toggle between sorting the list by how many brownie points they've earned in the past 30 days and by how many brownie points they've earned total.
+* User Story: I can click into any of those recipes to view it.
+
+* User Story: I can edit these recipes.
+
+* User Story: I can delete these recipes.
+
+* User Story: All new recipes I add are saved in my browser's local storage. If I refresh the page, these recipes will still be there.
 
 
 ### Components
   * App - parent
+  * List - child
+  * Modal - child
+  * Edit Modal - child of List
   
 ### APIs / Libraries / Articles
 * http://facebook.github.io/react/docs/getting-started.html
 * http://www.w3schools.com/howto/howto_css_modals.asp
-* https://medium.com/pro-react/a-brief-talk-about-immutability-and-react-s-helpers-70919ab8ae7c#.jpwy9npw6 - small introduction to immutable.js library and why immutability is important to use with react
+* https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API 
+  - tutorial about localStorage
 
 ### Technologies Used
 * javascript

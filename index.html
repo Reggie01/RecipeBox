@@ -20,9 +20,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
   </head>
   <body>
-    <div id="contentText" ></div>
+    <div id="contentText"></div>
     <script>
-        
+        // feature detection function as shown in Web Storage API documentation
+        // https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
         function storageAvailable( type ){
             try {
                 var storage = window[type],
@@ -45,7 +46,11 @@
     <script type="text/babel">
     
       var Modal = React.createClass({
-          
+          getInitialState: function() {
+              return {
+                  displaySuccessMessage: false
+              };
+          },
           closeModal: function( e ) {     
               this.props.displayModal();                                 
           },
@@ -69,14 +74,36 @@
               // 3. Reset Form
               this.refs.recipeForm.reset();
               
+              // 4. Add Response
+              this.setState({
+                  displaySuccessMessage: true
+              });
+              
+              var timeoutID = this.delayedAlert();
+              
+              // window.clearTimeout( timeoutID );
           },
-          
+          delayedAlert: function() {
+              return setTimeout( function() {
+         
+                  this.setState({
+                      displaySuccessMessage: false
+                  })
+              }.bind( this ), 2000 );
+          },
           render: function() {
-              var classes;
+              var classes,
+                    response;
               if ( this.props.willDisplayModal ){
                   classes = "modal_container";
               } else {
                   classes = "modal_container showModal";
+              }
+              
+              if( this.state.displaySuccessMessage ) {
+                  response = "alert alert-success";
+              } else {
+                  response = "alert alert-success hidden";
               }
               
               return (
@@ -102,7 +129,8 @@
                         </form>
                       </div>
                       <div className="modal_footer">                                
-                                                              
+                          <div id="msgSubmit" className="h3 text-center hidden">Message Submitted!</div>    
+                          <div className={response} role="alert">Cheers! You have successfully added another delicious recipe.</div>                          
                       </div>                     
                     </div>                                 
                   </div>
@@ -318,7 +346,7 @@
             if( storageAvailable( 'localStorage' )) {
                  console.log( "We can use storage." );
                  console.log( "Retreive data from local storage." );
-                 console.log( JSON.parse( localStorage.getItem( data ) ) );
+                 
                  return JSON.parse( localStorage.getItem( data ) );
              } else {
                 return this.state.recipes;
@@ -329,8 +357,8 @@
             var recipes;
             if( storageAvailable( 'localStorage' )) {
                  console.log( "Get initial data from storage." );
-                 
-                 if( JSON.parse( localStorage.getItem( "_user_recipes" ) ).length > 0 ) {
+                 // console.log( localStorage.getItem( "_user_recipes" ) );
+                 if( JSON.parse( localStorage.getItem( "_user_recipes" ) )  ) {
                      recipes = JSON.parse( localStorage.getItem( "_user_recipes" ) );
                  } else {
                      recipes =  [
@@ -351,9 +379,9 @@
         _addRecipe: function( recipe ) {
             var recipes;
             recipes = this.retreiveRecipeData( "_user_recipes" );
-            console.log( recipes );
+            // console.log( recipes );
             recipes.push( recipe );
-            console.log( recipes );
+            // console.log( recipes );
             this.storeRecipeData( recipes );
             this.setState({
                 recipes: this.retreiveRecipeData( "_user_recipes" )
@@ -422,7 +450,7 @@
               </div> 
               <pre>
                   {JSON.stringify(this.state, null, 2)}
-              </pre>
+              </pre> 
            </div>            
           )
         }
